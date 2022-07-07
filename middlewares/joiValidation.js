@@ -15,6 +15,8 @@ module.exports = {
                 .min(8)
                 .max(16)
                 .required(),
+            favorite: joi.boolean()
+                .optional()
         });
 
         const validationResult = schema.validate(req.body);
@@ -39,6 +41,8 @@ module.exports = {
                 .min(8)
                 .max(16)
                 .optional(),
+            favorite: joi.boolean()
+                .optional()
         });
 
         const validationResult = schema.validate(req.body);
@@ -47,5 +51,19 @@ module.exports = {
             return res.json({ message: "missing required name field", status: 400 });
         }
         next();
-    }, 
+    },
+    
+    patchFavoriteValidation: (req, res, next) => {
+        const schema = joi.object({
+            favorite: joi.boolean().required()
+        });
+    
+    const validationResult = schema.validate(req.body);
+        if (validationResult.error) {
+            console.log(validationResult.error)
+            return res.json({ message: "missing field favorite", status: 400 });
+        }
+        next();
+    
+    }
 };
