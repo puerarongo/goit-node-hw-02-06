@@ -22,7 +22,7 @@ module.exports = {
         const validationResult = schema.validate(req.body);
         if (validationResult.error) {
             console.log(validationResult.error)
-            return res.json({ message: "missing required name field", status: 400 });
+            return res.status(400).json({ message: "missing required name field" });
         }
         next();
     }, 
@@ -48,7 +48,7 @@ module.exports = {
         const validationResult = schema.validate(req.body);
         if (validationResult.error) {
             console.log(validationResult.error)
-            return res.json({ message: "missing required name field", status: 400 });
+            return res.status(400).json({ message: "missing required name field" });
         }
         next();
     },
@@ -58,12 +58,11 @@ module.exports = {
             favorite: joi.boolean().required()
         });
     
-    const validationResult = schema.validate(req.body);
-        if (validationResult.error) {
-            console.log(validationResult.error)
-            return res.json({ message: "missing field favorite", status: 400 });
-        }
-        next();
-    
-    }
+        const validationResult = schema.validate(req.body);
+            if (validationResult.error) {
+                console.log(validationResult.error)
+                return res.status(400).json({ message: "missing required field favorite" });
+            }
+            next();
+    },
 };

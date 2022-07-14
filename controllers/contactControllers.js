@@ -4,8 +4,22 @@ const createError = require("http-errors");
 
 const getContacts = async (req, res, next) => {
     try {
-        const data = await Contact.find();
-        res.json({ data, status: 200 });
+        const { page = 1, limit = 20, favorite } = req.query;
+        const { _id } = req.user;
+
+        const skip = (page - 1) * limit;
+        // ? populate связывает одну колекцию с другой (contacts и users)
+        let data = await Contact.find(
+            { owner: _id },
+            "-createdAt -updatedAt",
+            { skip, limit: +limit }
+        ).populate("owner", "email subscription");
+
+        if (favorite === "true" || favorite === "false") {
+            data = data.filter(elem => String(elem.favorite) === favorite)
+        }
+        
+        res.status(200).json({ data });
     }
     catch (err) {
         next(err);
@@ -21,7 +35,7 @@ const getContact = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ data, status: 200 });
+        res.status(200).json({ data });
     }
     catch (err) {
         if (err.message.includes("Cast to ObjectId failed")) {
@@ -34,8 +48,9 @@ const getContact = async (req, res, next) => {
 
 const postContact = async (req, res, next) => {
     try { 
-        const data = await Contact.create(req.body);
-        res.json({ data, status: 201 });
+        const body = { ...req.body, owner: req.user._id };
+        const data = await Contact.create(body);
+        res.status(201).json({ data });
     }
     catch (err) {
         if (err.message.includes("validation failed")) {
@@ -54,7 +69,7 @@ const deleteContact = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ message: "Contact deleted", status: 200 })
+        res.status(200).json({ message: "Contact deleted" });
     }
     catch (err) {
         next(err);
@@ -70,7 +85,7 @@ const putContact = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ data, status: 200 });
+        res.status(200).json({ data });
     }
     catch (err) {
         next(err);
@@ -85,13 +100,12 @@ const patchFavorite = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ data, status: 200 });
+        res.status(200).json({ data });
     }
     catch (err) {
         next(err);
     }
 };
-
 
 
 
