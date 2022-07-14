@@ -64,6 +64,5 @@ module.exports = {
             return res.json({ message: "missing field favorite", status: 400 });
         }
         next();
-    
-    }
+    },
 };

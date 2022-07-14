@@ -4,7 +4,17 @@ const createError = require("http-errors");
 
 const getContacts = async (req, res, next) => {
     try {
-        const data = await Contact.find();
+        const { page = 1, limit = 20 } = req.query;
+        const { _id } = req.user;
+
+        const skip = (page - 1) * limit;
+        // ? populate связывает одну колекцию с другой (contacts и users)
+        const data = await Contact.find(
+            { owner: _id },
+            "-createdAt -updatedAt",
+            { skip, limit: +limit }
+        ).populate("owner", "email subscription");
+        
         res.json({ data, status: 200 });
     }
     catch (err) {
@@ -34,7 +44,8 @@ const getContact = async (req, res, next) => {
 
 const postContact = async (req, res, next) => {
     try { 
-        const data = await Contact.create(req.body);
+        const body = { ...req.body, owner: req.user._id };
+        const data = await Contact.create(body);
         res.json({ data, status: 201 });
     }
     catch (err) {
@@ -54,7 +65,7 @@ const deleteContact = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ message: "Contact deleted", status: 200 })
+        res.status(200).json({ message: "Contact deleted" });
     }
     catch (err) {
         next(err);
