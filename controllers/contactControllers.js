@@ -19,7 +19,7 @@ const getContacts = async (req, res, next) => {
             data = data.filter(elem => String(elem.favorite) === favorite)
         }
         
-        res.json({ data, status: 200 });
+        res.status(200).json({ data });
     }
     catch (err) {
         next(err);
@@ -35,7 +35,7 @@ const getContact = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ data, status: 200 });
+        res.status(200).json({ data });
     }
     catch (err) {
         if (err.message.includes("Cast to ObjectId failed")) {
@@ -50,7 +50,7 @@ const postContact = async (req, res, next) => {
     try { 
         const body = { ...req.body, owner: req.user._id };
         const data = await Contact.create(body);
-        res.json({ data, status: 201 });
+        res.status(201).json({ data });
     }
     catch (err) {
         if (err.message.includes("validation failed")) {
@@ -85,7 +85,7 @@ const putContact = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ data, status: 200 });
+        res.status(200).json({ data });
     }
     catch (err) {
         next(err);
@@ -100,7 +100,7 @@ const patchFavorite = async (req, res, next) => {
             const error = createError(404, "Not found");
             throw error;
         }
-        res.json({ data, status: 200 });
+        res.status(200).json({ data });
     }
     catch (err) {
         next(err);

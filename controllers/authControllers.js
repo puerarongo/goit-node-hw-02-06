@@ -80,9 +80,23 @@ const current = async (req, res, next) => {
     res.status(200).json({ email, subscription });
 };
 
+
+const patchSubscription = async (req, res, next) => {
+    try {
+        const { _id } = req.user;
+        const data = await User.findByIdAndUpdate(_id, req.body, { new: true });
+        const { email, subscription } = data;
+        res.status(200).json({ email, subscription });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     registration,
     login,
     logout,
-    current
+    current,
+    patchSubscription
 };
