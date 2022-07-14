@@ -4,16 +4,20 @@ const createError = require("http-errors");
 
 const getContacts = async (req, res, next) => {
     try {
-        const { page = 1, limit = 20 } = req.query;
+        const { page = 1, limit = 20, favorite } = req.query;
         const { _id } = req.user;
 
         const skip = (page - 1) * limit;
         // ? populate связывает одну колекцию с другой (contacts и users)
-        const data = await Contact.find(
+        let data = await Contact.find(
             { owner: _id },
             "-createdAt -updatedAt",
             { skip, limit: +limit }
         ).populate("owner", "email subscription");
+
+        if (favorite === "true" || favorite === "false") {
+            data = data.filter(elem => String(elem.favorite) === favorite)
+        }
         
         res.json({ data, status: 200 });
     }
@@ -102,7 +106,6 @@ const patchFavorite = async (req, res, next) => {
         next(err);
     }
 };
-
 
 
 
