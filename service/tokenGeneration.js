@@ -10,11 +10,9 @@ const tokenGeneration = (payload) => {
 
 const tokenVerify = (token) => {
     const { id } = jwt.verify(token, SECRET);
+    console.log("!!!", jwt.verify(token, SECRET))
     return id;
 };
 
 
-    module.exports = {
-        tokenGeneration,
-        tokenVerify
-    };
+module.exports = { tokenGeneration, tokenVerify };

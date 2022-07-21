@@ -1,5 +1,12 @@
 const User = require("../models/user");
 const createError = require("http-errors");
+
+const gravatar = require("gravatar");
+const path = require("path");
+const fs = require("fs").promises;
+const avatarsDirectory = require("../service/avatarsPath");
+const { v4: uuidv4 } = require('uuid');
+
 const { passwordGeneration, passwordCompare } = require("../service/passwordGeneration");
 const { tokenGeneration }  = require("../service/tokenGeneration");
 
@@ -14,7 +21,9 @@ const registration = async (req, res, next) => {
         }
 
         const hashPassword = await passwordGeneration(password);
-        const data = await User.create({ email, password: hashPassword });
+        const avatarURL = gravatar.url(email);
+
+        const data = await User.create({ email, avatarURL, password: hashPassword });
         res.status(201).json({
             user: {
                 email,
@@ -93,10 +102,31 @@ const patchSubscription = async (req, res, next) => {
     }
 };
 
+
+const patchAvatar = async (req, res, next) => {
+    const { _id } = req.user;
+    const { path: tempUpload, filename } = req.file;
+    try {
+        const [extension] = filename.split(".").reverse();
+        const newFilename = `avatar${uuidv4()}.${extension}`;
+
+        const resultUpload = path.join(avatarsDirectory, newFilename);
+        await fs.rename(tempUpload, resultUpload);
+        
+        const avatarURL = path.join("avatars", newFilename);
+        await User.findByIdAndUpdate(_id, { avatarURL } );
+        res.status(200).json({ avatarURL });
+    }    
+    catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     registration,
     login,
     logout,
     current,
-    patchSubscription
+    patchSubscription,
+    patchAvatar
 };
