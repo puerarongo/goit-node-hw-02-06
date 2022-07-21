@@ -63,8 +63,7 @@ const login = async (req, res, next) => {
                 email,
                 password
             }
-        })
-        
+        }); 
     }
     catch (err) {
         next(err);
@@ -114,7 +113,7 @@ const patchAvatar = async (req, res, next) => {
         await fs.rename(tempUpload, resultUpload);
         
         const avatarURL = path.join("avatars", newFilename);
-        await User.findByIdAndUpdate(_id, { avatarURL } );
+        await User.findByIdAndUpdate(_id, { avatarURL });
         res.status(200).json({ avatarURL });
     }    
     catch (err) {

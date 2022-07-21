@@ -16,7 +16,7 @@ const authentificate = require("../../middlewares/authentificate");
 router.get('/', authentificate, getContacts);
 router.get('/:id', getContact);
 router.post('/', addContactsValidation, authentificate, postContact)
-router.delete('/:id', deleteContact);
+router.delete('/:id', authentificate, deleteContact);
 router.put('/:id', putContactsValidation, putContact);
 router.patch('/:id/favorite', patchFavoriteValidation, patchFavorite);
 
