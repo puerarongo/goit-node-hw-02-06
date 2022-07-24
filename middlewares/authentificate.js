@@ -14,7 +14,7 @@ const authentificate = async (req, res, next) => {
             throw error;
         }
 
-        // ? Здесь может вылетить ошибка 500, которую проверяем в if в catch
+        // ? Здесь может вылетить ошибка 500, которую проверяем в if внутри catch
         const userId = tokenVerify(token);
 
         const user = await User.findById(userId);

@@ -7,14 +7,18 @@ const {
     login,
     logout,
     current,
-    patchSubscription
+    patchSubscription,
+    patchAvatar
 } = require("../../controllers/authControllers");
 const authentificate = require("../../middlewares/authentificate");
+const upload = require("../../middlewares/uploadFile");
+
 
 router.post('/signup', authValidation, registration);
 router.post('/login', authValidation, login);
 router.get('/logout', authentificate, logout);
 router.get('/current', authentificate, current);
 router.patch('/', authentificate, patchSubscriptionValidation, patchSubscription);
+router.patch('/avatars', authentificate, upload.single("avatar"), patchAvatar);
 
 module.exports = router;
