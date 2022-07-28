@@ -8,7 +8,8 @@ const {
     logout,
     current,
     patchSubscription,
-    patchAvatar
+    patchAvatar,
+    getVerify
 } = require("../../controllers/authControllers");
 const authentificate = require("../../middlewares/authentificate");
 const upload = require("../../middlewares/uploadFile");
@@ -20,5 +21,6 @@ router.get('/logout', authentificate, logout);
 router.get('/current', authentificate, current);
 router.patch('/', authentificate, patchSubscriptionValidation, patchSubscription);
 router.patch('/avatars', authentificate, upload.single("avatar"), patchAvatar);
+router.get('/verify/:verificationToken', getVerify);
 
 module.exports = router;

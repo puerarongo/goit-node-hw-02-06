@@ -8,7 +8,11 @@ const avatarsDirectory = require("../service/avatarsPath");
 const { v4: uuidv4 } = require('uuid');
 
 const { passwordGeneration, passwordCompare } = require("../service/passwordGeneration");
-const { tokenGeneration }  = require("../service/tokenGeneration");
+const { tokenGeneration } = require("../service/tokenGeneration");
+
+// ? Работа с запросами на почту
+const urlVereficationToken = require("../service/urlVereficationToken");
+const sendMail = require("../helpers/sendMail");
 
 
 const registration = async (req, res, next) => {
@@ -22,8 +26,19 @@ const registration = async (req, res, next) => {
 
         const hashPassword = await passwordGeneration(password);
         const avatarURL = gravatar.url(email);
+        // ? Токен для верефикации почты
+        const verificationToken = uuidv4();
+        console.log(verificationToken)
 
-        const data = await User.create({ email, avatarURL, password: hashPassword });
+        const data = await User.create({ email, password: hashPassword, avatarURL, verificationToken });
+
+        const mail = {
+            to: email,
+            subject: `Confirm email`,
+            html: urlVereficationToken(verificationToken)
+        };
+        await sendMail(mail);
+
         res.status(201).json({
             user: {
                 email,
@@ -50,6 +65,11 @@ const login = async (req, res, next) => {
         const compareResult = await passwordCompare(password, user.password);
         if (!compareResult) {
             const error = createError(401, "Email or password is wrong");
+            throw error;
+        }
+
+        if (!user.verify) {
+            const error = createError(401, "Email not verify");
             throw error;
         }
         
@@ -121,11 +141,31 @@ const patchAvatar = async (req, res, next) => {
     }
 };
 
+
+const getVerify = async (req, res, next) => {
+    try {
+        const { verificationToken } = req.params;
+        const data = User.findOne({ verificationToken });
+        if (!data) {
+            const error = createError(404, "User not found");
+            throw error;
+        }
+
+        await User.findOneAndUpdate(verificationToken, { verify: true, verificationToken: "" });
+        res.status(200).json({ message: "Verification successful" });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+
+
 module.exports = {
     registration,
     login,
     logout,
     current,
     patchSubscription,
-    patchAvatar
+    patchAvatar,
+    getVerify
 };
