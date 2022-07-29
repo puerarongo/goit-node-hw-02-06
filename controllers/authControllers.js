@@ -28,7 +28,6 @@ const registration = async (req, res, next) => {
         const avatarURL = gravatar.url(email);
         // ? Токен для верефикации почты
         const verificationToken = uuidv4();
-        console.log(verificationToken)
 
         const data = await User.create({ email, password: hashPassword, avatarURL, verificationToken });
 
@@ -122,8 +121,10 @@ const patchSubscription = async (req, res, next) => {
 };
 
 
+// ? AVATAR
 const patchAvatar = async (req, res, next) => {
     const { _id } = req.user;
+    console.log(req.file)
     const { path: tempUpload, filename } = req.file;
     try {
         const [extension] = filename.split(".").reverse();
@@ -142,6 +143,7 @@ const patchAvatar = async (req, res, next) => {
 };
 
 
+// ? MESSAGE FROM EMAIL
 const getVerify = async (req, res, next) => {
     try {
         const { verificationToken } = req.params;
@@ -151,8 +153,38 @@ const getVerify = async (req, res, next) => {
             throw error;
         }
 
-        await User.findOneAndUpdate(verificationToken, { verify: true, verificationToken: "" });
+        const data1 = await User.findOneAndUpdate(verificationToken, { verify: true, verificationToken: "" });
+        console.log("DATA1!", data1)
         res.status(200).json({ message: "Verification successful" });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+
+
+const repeatVerify = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        console.log("EMAIL", email)
+        const data = await User.findOne({ email });
+        console.log("DATA", data)
+        const { verify, verificationToken } = data;
+        console.log("VETY T", verificationToken)
+
+        if (verify) {
+            const error = createError(400, "Verification has already been passed");
+            throw error;
+        }
+
+        const mail = {
+            to: email,
+            subject: `Confirm email`,
+            html: urlVereficationToken(verificationToken)
+        };
+        await sendMail(mail);
+
+        res.status(200).json({ message: "Verification email sent" });
     }
     catch (err) {
         next(err);
@@ -167,5 +199,6 @@ module.exports = {
     current,
     patchSubscription,
     patchAvatar,
-    getVerify
+    getVerify,
+    repeatVerify
 };
