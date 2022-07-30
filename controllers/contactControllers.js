@@ -80,6 +80,7 @@ const deleteContact = async (req, res, next) => {
 const putContact = async (req, res, next) => {
     try {
         const { id } = req.params;
+        // ? req.body после id обновляет тело контакта
         const data = await Contact.findByIdAndUpdate(id, req.body, {new: true});
         if (!data) {
             const error = createError(404, "Not found");

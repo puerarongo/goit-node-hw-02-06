@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const { addContactsValidation, putContactsValidation, patchFavoriteValidation } = require("../../middlewares/joiContactsValidation");
+const {
+  addContactsValidation,
+  putContactsValidation,
+  patchFavoriteValidation
+} = require("../../middlewares/joiValidation/joiContactsValidation");
+
 const {
   getContacts,
   getContact,
@@ -10,6 +15,7 @@ const {
   putContact,
   patchFavorite
 } = require("../../controllers/contactControllers");
+
 const authentificate = require("../../middlewares/authentificate");
 
 
