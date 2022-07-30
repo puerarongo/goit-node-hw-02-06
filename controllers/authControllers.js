@@ -124,8 +124,8 @@ const patchSubscription = async (req, res, next) => {
 // ? AVATAR
 const patchAvatar = async (req, res, next) => {
     const { _id } = req.user;
-    console.log(req.file)
     const { path: tempUpload, filename } = req.file;
+
     try {
         const [extension] = filename.split(".").reverse();
         const newFilename = `avatar${uuidv4()}.${extension}`;
@@ -153,8 +153,7 @@ const getVerify = async (req, res, next) => {
             throw error;
         }
 
-        const data1 = await User.findOneAndUpdate(verificationToken, { verify: true, verificationToken: "" });
-        console.log("DATA1!", data1)
+        await User.findOneAndUpdate(verificationToken, { verify: true, verificationToken: "" });
         res.status(200).json({ message: "Verification successful" });
     }
     catch (err) {
@@ -166,11 +165,8 @@ const getVerify = async (req, res, next) => {
 const repeatVerify = async (req, res, next) => {
     try {
         const { email } = req.body;
-        console.log("EMAIL", email)
         const data = await User.findOne({ email });
-        console.log("DATA", data)
         const { verify, verificationToken } = data;
-        console.log("VETY T", verificationToken)
 
         if (verify) {
             const error = createError(400, "Verification has already been passed");

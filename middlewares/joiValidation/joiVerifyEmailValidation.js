@@ -11,7 +11,6 @@ module.exports = {
 
         const validationResult = schema.validate(req.body);
         if (validationResult.error) {
-            console.log(validationResult.error)
             return res.status(400).json({ message: "missing required field email" });
         }
         next();
